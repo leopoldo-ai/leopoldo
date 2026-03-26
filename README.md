@@ -56,11 +56,11 @@ No patching over problems. Root cause or nothing.
 
 **Engine.** The system core. Orchestrator, quality gates, correction loop, lifecycle manager, and session automation. Runs on every request.
 
-**Studio.** The full toolchain used to build, test, and validate domain expertise. Write a new capability, run it through the studio, ship it. The same toolchain that built Leopoldo is included.
+**Studio.** The full toolchain used to build, test, and validate expertise for each plugin. Write a new capability, run it through the studio, ship it. The same toolchain that built Leopoldo is included.
 
 **Evolution.** A weekly cycle that reviews postmortems, scans the ecosystem for updates, and proposes patches. You approve. It ships. The system gets better every week without manual intervention.
 
-**Agents.** 13 workflow agents for multi-step processes: finance, consulting, legal, competitive intelligence, dev, medical research, and reporting. The orchestrator routes requests to the right agent automatically.
+**Agents.** Specialized workflow agents handle multi-step processes. The open-source platform includes system-claw (setup and diagnostics), reporting-output (professional documents), and the evolution agent. Premium plugins add domain-specific agents: 6 for finance, 4 for legal, 3 for consulting, 3 for competitive intelligence.
 
 **Full Stack Pack.** Included with every install. Architecture design, testing strategy, CI/CD pipelines, security review, frontend patterns, and code review workflows.
 
@@ -83,18 +83,18 @@ No prompt engineering. No retries. The system handles the routing and verificati
 
 ---
 
-## Premium domains
+## Premium plugins
 
-| Domain | What you can do |
-|---|---|
-| Finance | Due diligence, deal execution, fund management, market research, wealth advisory |
-| Legal | Compliance, regulatory analysis, risk assessment, contract review |
-| Consulting | Strategic analysis, market sizing, stakeholder reporting, engagement management |
-| Competitive Intelligence | Market positioning, competitor profiling, ecosystem monitoring |
+| Plugin | What you can do | Agents included |
+|---|---|---|
+| Finance | Due diligence, deal execution, fund management, advisory, trading | 6 specialized agents |
+| Legal | Contract lifecycle, corporate counsel, dispute resolution, legal ops | 4 specialized agents |
+| Consulting | Engagement management, market sizing, workshops, marketing, medical research | 3 specialized agents |
+| Competitive Intelligence | Market positioning, competitor profiling, people intelligence, market monitoring | 3 specialized agents |
 
 Available on request. Contact [hello@leopoldo.ai](mailto:hello@leopoldo.ai)
 
-Explore examples in each pack's directory under `skills/packs/`.
+Explore examples in each plugin's repository under the `leopoldo-ai` org.
 
 ---
 
@@ -130,9 +130,9 @@ Full system design, infrastructure map, and component breakdown: [ARCHITECTURE.m
 
 ---
 
-## Premium domains and services
+## Premium plugins and services
 
-Enterprise setup, team deployment, and custom domain configuration: [leopoldo.ai/services](https://leopoldo.ai/services)
+Enterprise setup, team deployment, and custom plugin configuration: [leopoldo.ai/services](https://leopoldo.ai/services)
 
 Contact [hello@leopoldo.ai](mailto:hello@leopoldo.ai)
 

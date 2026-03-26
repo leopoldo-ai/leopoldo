@@ -21,7 +21,7 @@ Leopoldo is built on three layers:
 ```
 User Request
   -> Orchestrator (intent classification, routing)
-    -> Workflow Agent (13 specialized agents)
+    -> Workflow Agent (specialized agents per plugin)
       -> Capability execution
         -> Quality Gate (structure, completeness, actionability)
           -> Output to user
@@ -138,24 +138,23 @@ Studio tools are never distributed to users. They run in the development environ
 
 ## Agent System
 
-Leopoldo routes requests through 13 specialized workflow agents plus one orchestrator. Each agent owns multi-step processes within its domain.
+The platform includes 4 public agents:
 
-| Agent | Domain | Description |
-|-------|--------|-------------|
-| orchestrator | System | Main routing agent. Dispatches to workflow agents, enforces gates, manages session lifecycle |
-| due-diligence-flow | Finance | Investment analysis and due diligence workflows |
-| deal-execution | Finance | PE/VC and M&A deal execution processes |
-| advisory-desk | Finance | Investment banking and M&A advisory |
-| markets-pro | Finance | Trading, research, and portfolio management |
-| fund-management | Finance | Investment fund management and reporting |
-| wealth-family | Finance | Wealth management and family office operations |
-| consulting | Business | Strategic and generalist consulting workflows |
-| ci-flow | Business | Competitive intelligence and market positioning |
-| reporting-output | Business | Professional reports, presentations, and documents |
-| medical-research | Medical | Clinical trials, grants, and biostatistics |
-| compliance-risk | Legal | Compliance, regulatory, and risk management |
-| dev-setup | Dev | Environment setup and tool detection |
-| evolution-agent | Studio | Weekly auto-evolution (development environment only, never distributed) |
+| Agent | Purpose |
+|-------|---------|
+| `orchestrator` | Routes requests, enforces quality gates, manages corrections |
+| `system-claw` | Environment scanning, setup, diagnostics, health checks |
+| `reporting-output` | Professional document generation (docx, pptx, xlsx) |
+| `evolution-agent` | Weekly auto-improvement cycle |
+
+Premium plugins add domain-specific agents:
+
+| Plugin | Agents | Purpose |
+|--------|--------|---------|
+| Finance | 6 agents | Due diligence, deal execution, fund management, advisory, markets, wealth |
+| Legal | 4 agents | Contract lifecycle, corporate counsel, dispute resolution, legal operations |
+| Consulting | 3 agents | Strategic consulting, medical research, marketing |
+| Competitive Intelligence | 3 agents | CI pipeline, people profiling, market monitoring |
 
 ---
 
@@ -260,7 +259,7 @@ How a request moves through the system from start to finish:
 ```
 leopoldo/
   skills/             Capabilities (packs, engine, studio)
-  agents/             Workflow agents (13 agents + orchestrator)
+  agents/             Workflow agents (orchestrator + domain-specific agents per plugin)
   agents/studio/      Studio agents (evolution-agent, development only)
   web/                Next.js website (leopoldo.ai)
   api/                FastAPI + LangGraph backend

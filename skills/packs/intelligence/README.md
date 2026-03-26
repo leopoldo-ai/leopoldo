@@ -11,6 +11,14 @@ Systematic competitive analysis for Claude: competitor profiling, market positio
 | Strategic Reports | C-suite intelligence briefs, market landscape reports |
 | People Intelligence | Profile decision makers, org chart reconstruction, influence mapping |
 
+## Workflow agents
+
+| Agent | What it handles |
+|-------|----------------|
+| `ci-flow` | Full competitive intelligence pipeline: discovery, profiling, value analysis, gap analysis, positioning, deliverables |
+| `people-scout` | Person profiling from public sources, org chart reconstruction, meeting preparation, influence mapping |
+| `market-radar` | Continuous market monitoring: competitor moves, funding, leadership changes, regulatory shifts, trends |
+
 ## Example prompts
 
 - "Build a competitive landscape for the European AI agent market"

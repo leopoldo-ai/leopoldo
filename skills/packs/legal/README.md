@@ -15,6 +15,15 @@ Comprehensive legal expertise for Claude: 8 practice areas covering contract law
 | Legal Operations | Matter management, outside counsel, legal spend optimization |
 | Compliance | Regulatory mapping, policy drafting, audit preparation, risk registers |
 
+## Workflow agents
+
+| Agent | What it handles |
+|-------|----------------|
+| `contract-flow` | Contract drafting, review, redline negotiation, lifecycle management across all contract types |
+| `corporate-counsel` | Company formation, governance, M&A legal, compliance, GDPR, regulatory affairs |
+| `dispute-engine` | Dispute assessment, litigation strategy, arbitration, mediation, settlement, enforcement |
+| `legal-ops-flow` | Legal spend optimization, outside counsel management, matter tracking, KPI dashboards |
+
 ## Example prompts
 
 - "Review this NDA and flag any non-standard or risky clauses"

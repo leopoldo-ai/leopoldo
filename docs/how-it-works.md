@@ -18,7 +18,7 @@ Leopoldo is an expertise system for Claude. Not a prompt library. Not a collecti
 Every installation includes the full system:
 
 - **Orchestrator**: routes tasks to the right workflow agent
-- **Agents**: 13 workflow agents covering finance, consulting, legal, dev, and more
+- **Agents**: Specialized workflow agents for multi-step processes. The open-source platform includes system-claw, reporting-output, and the evolution agent. Premium plugins add domain-specific agents (6 for finance, 4 for legal, 3 for consulting, 3 for competitive intelligence).
 - **Quality gates**: phase gates, doc gates, security gates. Blocking, not advisory.
 - **Correction loop**: every user correction triggers a postmortem before the fix
 - **Evolution cycle**: weekly automated improvement, user-approved before applied
@@ -31,11 +31,11 @@ Every installation includes the full system:
 
 That's it. The system handles CLAUDE.md merge, conflict resolution, and manifest tracking automatically.
 
-## Premium domains
+## Premium plugins
 
-For deep vertical expertise, premium packs are available on request:
+For deep vertical expertise, premium plugins are available on request:
 
-| Domain | Use cases |
+| Plugin | Use cases |
 |--------|-----------|
 | Finance | Due diligence, deal execution, fund management, trading |
 | Legal | Contract review, corporate law, disputes, IP, labour |

@@ -12,6 +12,14 @@ Senior consultant methodology for Claude: engagement management, market sizing, 
 | Stakeholder Mapping | Influence matrices, RACI, communication plans |
 | Strategic Advisory | SWOT, Porter's, scenario planning, Blue Ocean, Ansoff |
 
+## Workflow agents
+
+| Agent | What it handles |
+|-------|----------------|
+| `consulting` | Engagement lifecycle: proposals, market sizing, workshops, stakeholder mapping, implementation roadmaps, executive briefings |
+| `medical-research` | Clinical trial design, grant writing, biostatistics, drug discovery, regulatory compliance, scientific publishing |
+| `marketing-flow` | Go-to-market strategy, SEO optimization, email marketing, conversion optimization, campaign management |
+
 ## Example prompts
 
 - "Size the European AI consulting market with top-down and bottom-up methodology"
