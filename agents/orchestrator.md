@@ -73,13 +73,25 @@ Classify each request into one or more domains:
 |--------|----------------|----------------|
 | Due Diligence, screening, risk | "due diligence", "investment analysis", "screening", "risk" | `due-diligence-flow` |
 | Deal, PE, VC, M&A | "deal", "LBO", "term sheet", "IC memo", "exit", "fundraising" | `deal-execution` |
-| Competitive Intelligence | "competitor", "positioning", "intelligence", "market" | `ci-flow` |
 | Fund Management | "fund", "NAV", "investor", "UCITS", "ELTIF" | `fund-management` |
 | Advisory, IB, sell-side | "advisory", "pitch book", "DCF", "sell-side", "buy-side", "IPO" | `advisory-desk` |
-| Markets, Trading | "macro", "backtest", "portfolio optimize", "trading" | Direct skill |
-| Consulting | "engagement", "workshop", "market sizing", "proposal" | Direct skill |
-| Medical Research | "clinical trial", "grant", "biostatistics" | Direct skill |
-| Strategy, Reporting | "strategy", "report", "excel", "presentation" | Direct skill |
+| Markets, Trading | "macro", "backtest", "portfolio optimize", "trading", "morning brief" | `markets-pro` |
+| Wealth, Family Office | "wealth", "family office", "succession", "IPS", "philanthropy", "HNWI" | `wealth-family` |
+| Compliance, Regulatory | "compliance", "MiFID", "GDPR", "AML", "ESG", "regulatory", "cybersecurity" | `compliance-risk` |
+| Contract, NDA, SPA | "contract", "NDA", "SPA", "lease", "licensing agreement", "draft contract", "review contract" | `contract-flow` |
+| Corporate Law, Governance | "corporate law", "governance", "shareholder", "company formation", "M&A legal", "board resolution" | `corporate-counsel` |
+| Dispute, Litigation | "dispute", "litigation", "arbitration", "mediation", "claim", "settlement", "enforcement" | `dispute-engine` |
+| Legal Ops | "legal ops", "legal spend", "outside counsel", "matter tracking", "legal tech", "legal KPI" | `legal-ops-flow` |
+| Competitive Intelligence | "competitor", "positioning", "value space", "strategic positioning" | `ci-flow` |
+| Market Monitoring | "market radar", "competitor moves", "funding rounds", "new entrants", "industry trends" | `market-radar` |
+| People Profiling | "profile this person", "who is", "org chart", "decision-maker", "meeting prep", "stakeholder profile" | `people-scout` |
+| Marketing, GTM | "go-to-market", "SEO", "email marketing", "campaign", "content strategy", "CRO", "conversion" | `marketing-flow` |
+| Consulting | "engagement", "workshop", "market sizing", "proposal", "roadmap" | `consulting` |
+| Medical Research | "clinical trial", "grant", "biostatistics", "drug discovery" | `medical-research` |
+| Reports, Presentations | "report", "excel", "presentation", "board pack", "investor letter", "briefing" | `reporting-output` |
+| Strategy | "SWOT", "Porter", "scenario planning", "Blue Ocean", "Ansoff" | Direct skill |
+| System Setup, Diagnostics | "setup", "health check", "diagnostics", "scan capabilities", "first-time setup" | `system-claw` |
+| Dev Environment | "install tool", "missing dependency", "setup environment", "install semgrep", "install docker" | `dev-setup` |
 
 ### Step 2 — Delegation or Direct Execution
 

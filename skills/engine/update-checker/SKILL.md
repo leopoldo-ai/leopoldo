@@ -1,7 +1,7 @@
 ---
 name: update-checker
-version: 5.0.0
-description: Manifest-aware update system for Leopoldo plugins. Checks GitHub Releases on session start, updates only managed skills (preserving user customizations), runs integrity checks, and handles migration from legacy installs. Use on session start or manually with /update.
+version: 6.0.0
+description: Backend-aware update system for Leopoldo plugins. Checks for updates ONLY when user runs /leopoldo update. Uses Leopoldo backend API with client API key. Integrity check (offline) runs every session. Never connects automatically.
 skillos:
   layer: core
   category: meta
@@ -9,244 +9,147 @@ skillos:
   requires:
     hard: []
     soft: ["leopoldo-manager"]
-  provides: ["auto-update", "plugin-update", "integrity-check"]
-  triggers: ["session-start"]
+  provides: ["plugin-update", "integrity-check"]
+  triggers: ["/leopoldo update", "/update"]
   config: {}
 ---
 
-# Leopoldo Update Checker v5 — Manifest-Aware
+# Leopoldo Update Checker v6 — Backend-Aware
 
-Automatic, silent update system that respects user customizations. Uses the manifest (`.leopoldo-manifest.json`) to know which skills are managed by Leopoldo and which belong to the user. Never overwrites user modifications without explicit consent.
-
-All plugins are free and open source (MIT). No authentication needed.
+Explicit-only update system. NEVER connects automatically. Uses `leopoldo-client.json` for API key and backend URL. The only thing that runs on session start is an offline integrity check (no network, no API calls).
 
 ## Trigger
 
-- **Automatic:** Every session start (pre-tool hook)
-- **Manual:** User says "update", "check for updates", or `/update`
+- **Manual only:** `/leopoldo update` or `/update`
+- NOT on session start. NOT automatic. NOT silent.
+- Integrity check (offline) still runs every session start — no network involved.
 
-## Workflow
+## Phase 1: Read state
 
-### Phase 1: Read state
-
-1. **Detect format:**
+1. **Detect format** by checking directory structure:
    - `.claude/skills/` exists → `claude-code`, manifest at `.claude/skills/.leopoldo-manifest.json`
    - `.claude-plugin/` exists → `cowork`, manifest at `.claude-plugin/skills/.leopoldo-manifest.json`
 
-2. **Read manifest:**
-   - **Manifest exists:** extract plugins map, skills map, versions
-   - **Manifest missing, but Leopoldo skills detected:** MIGRATION (see Phase 1b)
-   - **No manifest, no Leopoldo skills:** exit silently (not a Leopoldo project)
+2. **Read `leopoldo-client.json`** — extract `api_key`, `api_url`, `client_id`.
 
-3. **Also read** `VERSION.json` for backward compatibility with legacy installs
+3. **Legacy format check:** If `github_token` is found instead of `api_key`, show migration message and stop:
 
-### Phase 1b: Migration (legacy installs without manifest)
+   > "This package uses an older update format. Contact hello@leopoldo.ai for an upgraded package."
 
-For users who installed before the manifest system:
+4. **Read manifest** (`.leopoldo-manifest.json`) for installed plugin versions and skill hashes.
 
-1. **Scan** all skills in skills_dir
-2. **Match** against known Leopoldo skill catalog (by name)
-3. **Generate manifest:**
-   - Known Leopoldo skills → `"status": "managed"`, compute hash
-   - Unknown skills → `"status": "preserved"`
-4. **Extract** plugin info from VERSION.json if available
-5. **Write** manifest
-6. **Notify:** "Leopoldo manifest created. Your skills are now tracked for safe updates."
-7. **Continue** to Phase 2
+## Phase 2: Validate license
 
-### Phase 2: Check for updates
+1. `GET {api_url}/api/licenses/validate` with header `X-Api-Key: {api_key}`
 
-For each plugin in `manifest.plugins`:
+2. **If expired:** show message and STOP:
 
-1. **Call** `GET https://api.github.com/repos/leopoldo-ai/{slug}/releases/latest`
-   - No authentication needed (public repo)
-   - Set header: `Accept: application/vnd.github.v3+json`
-   - Set header: `User-Agent: leopoldo-update-checker`
+   > "License expired on {date}. Updates paused. Contact hello@leopoldo.ai to renew."
 
-2. **Extract** `tag_name` from response
-3. **Compare** with version in manifest
+3. **If network error:** show message and STOP:
 
-4. **If all plugins up to date:** proceed to Phase 4 (integrity check only). Zero update output.
+   > "Could not reach update server. Check your connection."
 
-### Phase 3: Download and install update (manifest-aware)
+4. **If valid:** proceed to Phase 3.
+
+## Phase 3: Check for updates
+
+1. `GET {api_url}/api/updates/check` with header `X-Api-Key: {api_key}`
+
+2. **If no updates available:** show version list and STOP:
+
+   ```
+   All plugins up to date.
+     Investment Core v1.0.0
+     Deal Engine v1.0.0
+     124 skills managed, 3 user skills preserved
+   ```
+
+3. **If updates available:** show list with changelogs, ask user to confirm before proceeding.
+
+## Phase 4: Download and install (manifest-aware)
 
 1. **Create snapshot** before applying:
    - Copy current managed skill files to `.leopoldo-backup/snapshots/v{current}/`
    - Keep max 3 snapshots (delete oldest if needed)
 
-2. **Download** release assets for plugins that need updating
+2. **For each plugin to update:** `GET {api_url}/api/updates/download/{slug}` with header `X-Api-Key: {api_key}`
 
-3. **For each skill in the update, check manifest:**
+3. **Apply with manifest rules:**
 
-   **A) Skill is managed, hash matches manifest (user hasn't modified):**
-   → Overwrite with new version
-   → Update hash in manifest
-   → Count as "updated"
+   **A) Managed + hash matches manifest (user hasn't modified):**
+   → Overwrite with new version, update hash in manifest. Count as "updated".
 
-   **B) Skill is managed, hash does NOT match (user modified it):**
-   → Mark as `"managed-modified"` in manifest
-   → Do NOT overwrite
-   → Count as "skipped (local changes)"
+   **B) Managed + hash does NOT match (user modified):**
+   → Do NOT overwrite. Mark as `"managed-modified"` in manifest. Count as "skipped (local changes)".
 
-   **C) Skill is in manifest as "skipped":**
-   → Do not touch. User explicitly declined this skill.
+   **C) New skill (in update but not in manifest):**
+   → Install, add to manifest as managed.
 
-   **D) Skill is in manifest as "managed-modified":**
-   → Do not touch (already known to be user-modified)
-   → Count as "skipped (local changes)"
-
-   **E) New skill (in update but not in manifest):**
-   → Check if name exists on disk
-   → Name does NOT exist: install, add to manifest as managed
-   → Name EXISTS: skip in auto mode (don't conflict-prompt on session start)
-     In manual mode (/update): prompt user like install flow
-
-   **F) Skill in manifest but NOT in update (removed upstream):**
+   **D) Skill in manifest but NOT in update (removed upstream):**
    → Keep it. Never auto-delete a skill.
 
-4. **Update manifest:**
-   - New plugin versions
-   - New skill hashes
-   - New skills added
-   - Modified skills flagged
+4. **Update manifest:** new plugin versions, new skill hashes, new skills added, modified skills flagged.
 
 5. **Regenerate CLAUDE.md Leopoldo section:**
    - Find `<!-- leopoldo:start -->` and `<!-- leopoldo:end -->`
    - Replace content between markers with updated info
    - If markers don't exist, append section at end of file
 
-6. **Update VERSION.json** for backward compatibility
+6. **Show brief summary:**
 
-7. **Notify** (brief):
+   ```
+   Leopoldo updated: Investment Core v1.0.0 → v1.1.0
+     45 updated, 2 skipped (local changes), 1 new
+   ```
 
-```
-Leopoldo updated to v1.1.0
-```
+   If modified skills exist:
+   ```
+   2 skills have local changes (updates skipped):
+     dd-screening, risk-framework
+   Use /leopoldo update --force to override.
+   ```
 
-If specific plugins updated:
-```
-Leopoldo updated: Investment Core v1.0.0 → v1.1.0
-  45 updated, 2 skipped (local changes), 1 new
-```
+## Phase 5: Integrity check (offline, every session)
 
-If skips exist in auto mode:
-```
-Leopoldo updated to v1.1.0 (2 skills skipped, local changes preserved)
-```
+Runs on every session start. ZERO network calls. ZERO API requests.
 
-### Phase 4: Integrity check (every session start)
+1. Read manifest.
+2. For each managed skill, verify the file exists on disk.
+3. **Missing files found:** warn once: "N Leopoldo skills missing. Run /leopoldo repair."
+4. **All healthy:** zero output.
 
-Lightweight check, runs even when no update is available:
+## Soft Expiry Behavior
 
-1. **For each managed skill in manifest:**
-   - Does the file exist on disk?
-   - If missing: add to missing list
-
-2. **If missing skills found:**
-   - Auto mode: warn once: "2 Leopoldo skills missing. Run /leopoldo repair."
-   - Don't block the session, just inform
-
-3. **If all healthy:** zero output
+- Plugin works normally when expired (100% offline functionality preserved).
+- `/leopoldo update` shows expiry message and stops.
+- One-time reminder per session: "License expired. Updates paused. Contact hello@leopoldo.ai to renew."
+- Check: read `leopoldo-client.json` → `expires` field. Compare with current date. If expired AND not already reminded this session, show reminder.
 
 ## Error Handling
 
 | Error | Action |
 |-------|--------|
-| No network / timeout | Exit silently (auto) / "Check your connection" (manual) |
-| GitHub API rate limit (403) | Exit silently. Try next session. |
-| Release not found (404) | Exit silently. Repo may not have releases yet. |
-| Asset download fails | Skip that asset. Try next session. |
-| Manifest missing | Attempt migration (Phase 1b). If no Leopoldo skills, exit. |
-| Manifest corrupted | Regenerate from disk scan, warn user |
-| VERSION.json missing | Create with defaults if manifest exists |
-| Snapshot write fails | Continue update without snapshot, warn user |
-
-**Rule: NEVER show errors to the user on automatic checks.** The update system must be invisible when it can't work. Only show errors on manual `/update` invocation.
-
-## Manual mode (/update)
-
-When user explicitly says `/update` or "check for updates":
-
-1. Run same workflow as above
-2. Always show output, even if no updates:
-
-```
-All plugins up to date.
-  Investment Core v1.0.0
-  Deal Engine v1.0.0
-  124 skills managed, 3 user skills preserved
-```
-
-3. On error, show helpful message:
-
-```
-Could not check for updates. Check your network connection.
-```
-
-4. If modified skills exist, remind:
-
-```
-2 skills have local changes (updates skipped):
-  dd-screening, risk-framework
-Use /leopoldo update --force to override.
-```
-
-## Hash Computation
-
-SHA-256 of the SKILL.md file content (the main skill file only, not references/ subdirectory).
-
-```
-hash = SHA-256(read("skills/{name}/SKILL.md"))
-```
-
-Why only SKILL.md:
-- It's the primary file that defines the skill
-- References are supplementary and rarely change independently
-- Keeps hash computation fast
-
-## VERSION.json (backward compatibility)
-
-Still maintained for legacy compatibility, but manifest is the source of truth:
-
-```json
-{
-  "github_repo": "leopoldo-ai/investment-core",
-  "format": "claude-code",
-  "installed_version": "1.0.0",
-  "installed_plugins": {
-    "investment-core": "1.0.0",
-    "deal-engine": "1.0.0"
-  }
-}
-```
-
-When manifest exists, VERSION.json is updated as a mirror but never read as primary source.
+| No network / timeout | "Could not reach update server. Check your connection." |
+| 401 Unauthorized | "Invalid API key. Contact hello@leopoldo.ai." |
+| 403 License revoked | "License revoked. Contact hello@leopoldo.ai." |
+| 429 Rate limited | "Too many downloads today. Try again tomorrow." |
+| 404 No version | Skip that plugin. |
+| Old format (github_token) | "This package uses an older update format. Contact hello@leopoldo.ai for an upgraded package." |
 
 ## Rules
 
-- **NEVER mention SkillOS** — all user-facing text says "Leopoldo"
-- **Silent by default** — zero output when no updates or on error during auto-check
-- **Brief notifications** — max 3 lines per update
-- **Manifest is source of truth** — VERSION.json is secondary
-- **Never overwrite modified skills** — unless user passes --force
-- **Never delete skills automatically** — even if removed from upstream
-- **Never prompt during auto-check** — save conflict resolution for manual mode
-- **Snapshot before update** — always create backup before applying changes
-- **Idempotent** — running twice with same state produces same result
-- **No authentication** — GitHub API for public repos requires no auth
-
-## Anti-patterns
-
-- Overwriting user-modified skills without --force
-- Prompting user during session-start auto-check
-- Deleting skills that were removed from an upstream release
-- Downgrading a skill to an older version
-- Showing verbose progress ("Checking... Downloading... Installing...")
-- Ignoring the manifest and falling back to overwrite-all behavior
-- Skipping integrity check when no update is available
+- NEVER check for updates on session start (only integrity check is automatic and offline)
+- NEVER connect to any server without explicit user command
+- Only data sent to the server: `api_key` in request header. No file contents, no Imprint data, no telemetry.
+- Manifest is source of truth for all install state
+- Never overwrite modified skills unless `--force` is passed
+- Never delete skills automatically, even if removed upstream
+- Always create a snapshot before applying any update
+- Idempotent: running twice with same state produces same result
 
 ---
 
-**Version:** 5.0.0 (manifest-aware, integrity checks, migration support)
+**Version:** 6.0.0 (backend API, explicit-only, offline integrity check)
 **Type:** Engine skill (distributed in every plugin)
-**Dependencies:** Read/Write tools, WebFetch (for GitHub API), Bash (for hash computation)
+**Dependencies:** Read/Write tools, WebFetch (for backend API calls), Bash (for hash computation)
