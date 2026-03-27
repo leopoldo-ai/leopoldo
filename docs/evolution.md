@@ -1,6 +1,6 @@
 # The Evolution Loop
 
-Most tools degrade. Models update, usage patterns shift, new APIs emerge, and the system slowly falls out of sync. Leopoldo is designed to do the opposite: improve automatically, every week, with user approval before anything changes.
+Most tools degrade. Models update, usage patterns shift, new APIs emerge, and the system slowly falls out of sync. Leopoldo is designed to do the opposite: improve automatically, with user approval before anything changes.
 
 This is the evolution loop.
 
