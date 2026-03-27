@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # gate-enforcer.sh — Stop hook for Leopoldo.
 # Enforces pending quality gates. Exit 2 = block Claude from finishing.
-# Also reminds about unprocessed Imprint observations.
+# Imprint processing happens at session start (deterministic), not here.
 # Fail-open: if gates.json missing/corrupt/script error, exit 0.
 
 set -euo pipefail
@@ -89,16 +89,6 @@ for gate in $GATE_NAMES; do
     fi
   fi
 done
-
-# Remind about unprocessed Imprint observations (best-effort, not blocking)
-# Primary processing happens at next session start; this is a secondary reminder
-IMPRINT_OBS="$ROOT/.leopoldo/imprint/observations.jsonl"
-if [[ -f "$IMPRINT_OBS" ]]; then
-  OBS_COUNT="$(wc -l < "$IMPRINT_OBS" | tr -d ' ')"
-  if [[ "$OBS_COUNT" -gt 0 ]]; then
-    echo "{\"additionalContext\": \"Imprint: $OBS_COUNT unprocessed observations. If possible, process them now (read observations.jsonl + profile.json, synthesize, write profile.json, archive to observations.processed.jsonl). If not, they will be processed at next session start.\"}" >&2
-  fi
-fi
 
 # Log the check
 journal_append "{\"event\":\"gate.check\",\"blocked\":$BLOCKED,\"session_id\":\"$GATE_SESSION_ID\",\"timestamp\":\"$TIMESTAMP\"}"

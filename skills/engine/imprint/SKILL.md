@@ -237,9 +237,7 @@ Fires when the user states a clear preference or directive (e.g., "always do X",
 
 ### Profile Processing
 
-**Primary trigger:** SessionStart hook detects unprocessed observations from previous sessions and instructs Claude to process them silently before handling the user's request.
-
-**Secondary trigger:** Stop hook reminds Claude to process if possible (best-effort, may not fire if user closes terminal).
+**Primary trigger:** SessionStart hook detects unprocessed observations from previous sessions and instructs Claude to process them silently before handling the user's request. This is deterministic: the hook always fires.
 
 **Manual trigger:** User runs `/imprint process`.
 
