@@ -62,7 +62,7 @@ No patching over problems. Root cause or nothing.
 
 **system-claw.** Environment scanning on every session start. Detects your MCP servers, CLI tools, and hooks. The system adapts to what you actually have installed. No manual configuration.
 
-**Agents.** Specialized workflow agents handle multi-step processes. The open-source platform includes system-claw (environment scanning), reporting-output (professional documents: docx, pptx, xlsx), and the evolution agent. Premium plugins add domain-specific agents: 6 for finance, 4 for legal, 3 for consulting, 3 for competitive intelligence.
+**Agents.** Specialized workflow agents handle multi-step processes. The open-source platform includes reporting-output (professional documents: docx, pptx, xlsx) and the evolution agent (weekly auto-improvement). Premium plugins add domain-specific agents: 6 for finance, 4 for legal, 3 for consulting, 3 for competitive intelligence.
 
 **Studio.** The production toolchain used to author and validate new capabilities. Structured templates, local testing, quality validation. The same toolchain that built Leopoldo is included.
 
@@ -78,7 +78,7 @@ Prompt:
 
 What happens:
 
-1. Orchestrator routes to the dev agent
+1. Orchestrator classifies the request, routes to the right agent
 2. Agent produces: system diagram, tech stack recommendation, database schema, API design, Stripe billing integration plan
 3. Quality gate verifies completeness against the architecture checklist
 4. Structured result delivered in about 45 seconds
@@ -98,7 +98,7 @@ No prompt engineering. No retries. The system handles the routing and verificati
 
 Available on request. Contact [hello@leopoldo.ai](mailto:hello@leopoldo.ai)
 
-Explore examples in each plugin's repository under the `leopoldo-ai` org.
+Explore examples in each plugin's directory under `skills/packs/`.
 
 ---
 
