@@ -1,12 +1,12 @@
-# Leopoldo.ai
+<p align="center">
+  <img src=".github/banner.png" width="100%" alt="Leopoldo.ai">
+</p>
 
-The self-improving expertise system for Claude.
-
-*Orchestrates, corrects, and evolves itself. Scans your environment. Adapts to your tools. Gets better the more you use it.*
-
-[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![GitHub Stars](https://img.shields.io/github/stars/leopoldo-ai/leopoldo?style=flat)](https://github.com/leopoldo-ai/leopoldo/stargazers)
-[![Last Commit](https://img.shields.io/github/last-commit/leopoldo-ai/leopoldo)](https://github.com/leopoldo-ai/leopoldo/commits/master)
+<p align="center">
+  <a href="https://leopoldo.ai"><img src="https://img.shields.io/badge/leopoldo.ai-website-1C1917?style=flat" alt="Website"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-3A6B55" alt="MIT License"></a>
+  <a href="https://github.com/leopoldo-ai/leopoldo.ai/stargazers"><img src="https://img.shields.io/github/stars/leopoldo-ai/leopoldo.ai?style=flat" alt="GitHub Stars"></a>
+</p>
 
 ---
 
@@ -23,7 +23,7 @@ The self-improving expertise system for Claude.
 ## Quick start
 
 ```bash
-git clone https://github.com/leopoldo-ai/leopoldo .leo && cp -r .leo/.claude . && rm -rf .leo
+git clone https://github.com/leopoldo-ai/leopoldo.ai .leo && cp -r .leo/.claude . && rm -rf .leo
 ```
 
 Open Claude Code. The system activates automatically.
@@ -62,7 +62,7 @@ No patching over problems. Root cause or nothing.
 
 **system-claw.** Environment scanning on every session start. Detects your MCP servers, CLI tools, and hooks. The system adapts to what you actually have installed. No manual configuration.
 
-**Agents.** Specialized workflow agents handle multi-step processes. The open-source platform includes reporting-output (professional documents: docx, pptx, xlsx) and the evolution agent (weekly auto-improvement). Premium plugins add domain-specific agents: 6 for finance, 4 for legal, 3 for consulting, 3 for competitive intelligence.
+**Agents.** 22 specialized workflow agents handle multi-step processes. The open-source platform includes reporting-output (professional documents: docx, pptx, xlsx) and the evolution agent (weekly auto-improvement). Premium plugins add domain-specific agents: 6 for finance, 4 for legal, 3 for consulting, 3 for competitive intelligence.
 
 **Studio.** The production toolchain used to author and validate new capabilities. Structured templates, local testing, quality validation. The same toolchain that built Leopoldo is included.
 
@@ -87,9 +87,9 @@ No prompt engineering. No retries. The system handles the routing and verificati
 
 ---
 
-## Premium plugins
+## Premium domains
 
-| Plugin | What you can do | Agents included |
+| Domain | What you can do | Agents included |
 |---|---|---|
 | Finance | Due diligence, deal execution, fund management, advisory, trading | 6 specialized agents |
 | Legal | Contract lifecycle, corporate counsel, dispute resolution, legal ops | 4 specialized agents |
@@ -98,7 +98,7 @@ No prompt engineering. No retries. The system handles the routing and verificati
 
 Available on request. Contact [hello@leopoldo.ai](mailto:hello@leopoldo.ai)
 
-Explore examples in each plugin's directory under `skills/packs/`.
+Explore examples in each domain's directory under `skills/packs/`.
 
 ---
 
@@ -130,9 +130,9 @@ Full system design, infrastructure map, and component breakdown: [ARCHITECTURE.m
 
 | Tier | For | What you get |
 |------|-----|-------------|
-| **Personal** | Professionals who want Claude to work harder | Premium plugin of your choice, Imprint, 30-minute setup call |
-| **Team** | Teams who need AI expertise across their workflow | Premium plugins, workflow calibration, team training session |
-| **Enterprise** | Organizations that need full deployment with SLA | Full system deployment, custom plugins, dedicated support |
+| **Personal** | Professionals who want Claude to work harder | Premium domain of your choice, Imprint, 30-minute setup call |
+| **Team** | Teams who need AI expertise across their workflow | Premium domains, workflow calibration, team training session |
+| **Enterprise** | Organizations that need full deployment with SLA | Full system deployment, custom domains, dedicated support |
 
 [leopoldo.ai/services](https://leopoldo.ai/services) or contact [hello@leopoldo.ai](mailto:hello@leopoldo.ai)
 
