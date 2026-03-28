@@ -58,13 +58,13 @@ No patching over problems. Root cause or nothing.
 
 **Engine.** The system core. Orchestrator, quality gates, correction loop, lifecycle manager, and session automation. Runs on every request.
 
+**Hooks.** 6 lifecycle hooks enforce the system mechanically, not via prompts. Correction detection blocks Claude from fixing before running a postmortem. Gate enforcement blocks output when quality gates are pending. Tool logging tracks all operations for checkpoint discipline. These run as shell scripts in `.leopoldo/hooks/`, wired into Claude Code via `settings.json`.
+
 **Imprint.** The adaptive learning layer. Observes corrections, learns preferences, builds a profile. Outputs get more calibrated over time without being told twice.
 
 **system-claw.** Environment scanning on every session start. Detects your MCP servers, CLI tools, and hooks. The system adapts to what you actually have installed. No manual configuration.
 
-**Agents.** 22 specialized workflow agents handle multi-step processes. The open-source platform includes reporting-output (professional documents: docx, pptx, xlsx) and the evolution agent (weekly auto-improvement). Premium plugins add domain-specific agents: 6 for finance, 4 for legal, 3 for consulting, 3 for competitive intelligence.
-
-**Studio.** The production toolchain used to author and validate new capabilities. Structured templates, local testing, quality validation. The same toolchain that built Leopoldo is included.
+**Agents.** 22 specialized workflow agents handle multi-step processes. The open-source platform includes reporting-output (professional documents: docx, pptx, xlsx), system-claw (diagnostics), and dev-setup (tool installation). Premium plugins add domain-specific agents: 6 for finance, 4 for legal, 3 for consulting, 3 for competitive intelligence.
 
 **Full Stack Pack.** Included with every install. Architecture design, testing strategy, CI/CD pipelines, security review, frontend patterns, and code review workflows.
 

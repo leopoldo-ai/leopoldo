@@ -12,14 +12,16 @@ Every time a user corrects an output, a postmortem fires before the fix is appli
 
 ```
 User flags an error
-  → Orchestrator detects correction signal
-  → Postmortem runs first (root cause analysis)
-  → Root cause documented internally
-  → Fix applied
-  → Failure logged for the next evolution cycle
+  → correction-detector.sh hook detects signal (keyword match, IT + EN)
+  → Postmortem gate set in gates.json (mechanically enforced)
+  → gate-enforcer.sh BLOCKS Claude from responding until postmortem runs
+  → Postmortem: root cause analysis (Detect → Analyze → Document)
+  → Root cause logged in LESSONS_LEARNED.md and session journal
+  → Gate auto-clears, fix proceeds
+  → Failure feeds the next evolution cycle
 ```
 
-This is not just error recovery. It is a data collection system. Every correction becomes a signal that feeds the weekly cycle.
+This is not just error recovery. It is a data collection system. Every correction becomes a signal that feeds the weekly cycle. The enforcement is mechanical (hooks, not prompts): Claude cannot skip the postmortem even if it "wants" to.
 
 ---
 
