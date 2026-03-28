@@ -27,9 +27,10 @@ if echo "$FILE_PATH" | grep -q '\.state/' 2>/dev/null; then
   exit 2
 fi
 
-# Block writes to .leopoldo/ (except hooks/ which are editable during development)
+# Block writes to .leopoldo/ (except hooks/ and imprint/ which need write access)
 if echo "$FILE_PATH" | grep -q '\.leopoldo/' 2>/dev/null; then
-  if ! echo "$FILE_PATH" | grep -q '\.leopoldo/hooks/' 2>/dev/null; then
+  # Allow hooks (development) and imprint (learning data)
+  if ! echo "$FILE_PATH" | grep -qE '\.leopoldo/(hooks|imprint)/' 2>/dev/null; then
     echo "Protected path: files in .leopoldo/ are managed by leopoldo-manager. Use /leopoldo commands to modify." >&2
     exit 2
   fi

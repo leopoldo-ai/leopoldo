@@ -1,6 +1,70 @@
 {
   "permissions": {
-    "allow": []
+    "allow": [
+      "Bash(bash .leopoldo/hooks/*)",
+      "Bash(jq *)",
+      "Bash(date *)",
+      "Bash(mkdir *)"
+    ]
   },
-  "agent": "orchestrator"
+  "agent": "orchestrator",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .leopoldo/hooks/session-start.sh",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .leopoldo/hooks/correction-detector.sh",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .leopoldo/hooks/gate-enforcer.sh",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .leopoldo/hooks/pre-edit-validator.sh",
+            "timeout": 3000
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .leopoldo/hooks/tool-logger.sh",
+            "timeout": 3000
+          }
+        ]
+      }
+    ]
+  }
 }

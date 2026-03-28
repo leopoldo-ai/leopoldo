@@ -1,6 +1,6 @@
 ---
 name: dev-setup
-description: Environment setup agent. Detects and installs missing CLI tools required by development skills (semgrep, codeql, docker, etc.). Use proactively when a dev skill reports a missing dependency.
+description: "Environment setup agent for installing missing CLI tools. Use when semgrep, codeql, docker, or other development tools are missing. Detects OS, installs via appropriate package manager, verifies installation. Lightweight and fast."
 model: haiku
 maxTurns: 20
 tools:

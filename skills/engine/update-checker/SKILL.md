@@ -1,7 +1,7 @@
 ---
 name: update-checker
-version: 6.0.0
-description: Backend-aware update system for Leopoldo plugins. Checks for updates ONLY when user runs /leopoldo update. Uses Leopoldo backend API with client API key. Integrity check (offline) runs every session. Never connects automatically.
+version: 7.0.0
+description: Backend-aware update system for Leopoldo plugins. Checks for updates ONLY when user runs /leopoldo update. Updates skills, agents, hooks, orchestrator, and CLAUDE.md. Uses Leopoldo backend API with client API key. Integrity check (offline) runs every session. Never connects automatically.
 skillos:
   layer: core
   category: meta
@@ -14,7 +14,7 @@ skillos:
   config: {}
 ---
 
-# Leopoldo Update Checker v6 — Backend-Aware
+# Leopoldo Update Checker v7 — Backend-Aware
 
 Explicit-only update system. NEVER connects automatically. Uses `leopoldo-client.json` for API key and backend URL. The only thing that runs on session start is an offline integrity check (no network, no API calls).
 
@@ -148,8 +148,79 @@ Runs on every session start. ZERO network calls. ZERO API requests.
 - Always create a snapshot before applying any update
 - Idempotent: running twice with same state produces same result
 
+## Extended Update Categories (v7)
+
+The update checker handles 5 component types beyond skills:
+
+| Category | Location | Update behavior |
+|----------|----------|----------------|
+| `skills` | `.claude/skills/` | Hash-checked, user modifications preserved |
+| `agents` | `.claude/agents/` | Always overwrite (no user customization expected) |
+| `hooks` | `.leopoldo/hooks/` | Always overwrite (system scripts, not user-edited) |
+| `orchestrator` | `.claude/agents/orchestrator.md` | Always overwrite (client variant, not customized) |
+| `claude_md` | `CLAUDE.md` | Regenerate leopoldo:start/end section only |
+
+### Backend API Extension
+
+`POST /api/licenses/check-updates` request body adds:
+```json
+{
+  "api_key": "...",
+  "current_version": "1.0.0",
+  "manifest_hash": "...",
+  "component_versions": {
+    "skills": "1.0.0",
+    "agents": "1.0.0",
+    "hooks": "1.0.0",
+    "orchestrator": "1.0.0"
+  }
+}
+```
+
+Response adds per-component update availability:
+```json
+{
+  "update_available": true,
+  "components": {
+    "skills": {"available": true, "version": "1.1.0", "count": 3},
+    "agents": {"available": true, "version": "1.1.0", "files": ["deal-execution.md"]},
+    "hooks": {"available": false},
+    "orchestrator": {"available": true, "version": "1.1.0"}
+  }
+}
+```
+
+### Hook Update Flow
+
+1. Download updated hook scripts from backend
+2. Create snapshot of current `.leopoldo/hooks/` before overwriting
+3. Replace all hook scripts (hooks are system-managed, never user-edited)
+4. Verify all scripts are executable (`chmod +x`)
+5. Log `hooks.updated` event to journal
+
+### Agent Update Flow
+
+1. Compare agent file hashes with backend versions
+2. Download updated agent files
+3. Overwrite `.claude/agents/` files (agents are not user-customized)
+4. Log `agents.updated` event to journal
+
+### Orchestrator Update Flow
+
+1. Download latest `orchestrator-client.md` from backend
+2. Copy as `.claude/agents/orchestrator.md` (renamed for settings.json compatibility)
+3. Log `orchestrator.updated` event to journal
+
+### CLAUDE.md Update Flow
+
+1. Read current CLAUDE.md
+2. Find `<!-- leopoldo:start -->` and `<!-- leopoldo:end -->` markers
+3. Replace content between markers with updated version from backend
+4. Preserve everything outside markers (user's own content)
+5. Log `claude_md.updated` event to journal
+
 ---
 
-**Version:** 6.0.0 (backend API, explicit-only, offline integrity check)
+**Version:** 7.0.0 (backend API, explicit-only, offline integrity check, extended component updates)
 **Type:** Engine skill (distributed in every plugin)
 **Dependencies:** Read/Write tools, WebFetch (for backend API calls), Bash (for hash computation)

@@ -24,30 +24,36 @@ SESSION_ID="ses_$(date +%Y%m%d_%H%M%S)"
 GATES_FILE="$ROOT/.state/gates.json"
 
 if [[ -f "$GATES_FILE" ]] && _has_jq && jq empty "$GATES_FILE" 2>/dev/null; then
-  # Preserve enforcement levels and checkpoint_threshold, reset counters
+  # Preserve enforcement levels, reset counters, ensure postmortem field exists
   UPDATED="$(jq \
     --arg sid "$SESSION_ID" \
     '.session_id = $sid
-     | .task_count_since_checkpoint = 0
-     | .gates.checkpoint.soft_warnings = 0
+     | .checkpoint_threshold = 20
      | .gates["doc-gate"].soft_warnings = 0
+     | .postmortem = {"required": false, "detected_at": null, "completed": false, "user_signal": null}
      | .overrides = []' \
     "$GATES_FILE")"
   write_gate_state "$UPDATED"
 else
-  # Create fresh gates.json
+  # Create fresh gates.json with postmortem tracking
   write_gate_state "$(cat <<EOF
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "session_id": "$SESSION_ID",
   "task_count_since_checkpoint": 0,
-  "checkpoint_threshold": 6,
+  "checkpoint_threshold": 20,
   "current_phase": null,
   "gates": {
     "checkpoint": {"status": "clear", "enforcement": "soft", "soft_warnings": 0},
     "doc-gate": {"status": "clear", "enforcement": "soft", "soft_warnings": 0},
     "phase-gate": {"status": "clear", "enforcement": "hard", "skills_required": [], "skills_invoked": []},
     "security-gate": {"status": "clear", "enforcement": "hard"}
+  },
+  "postmortem": {
+    "required": false,
+    "detected_at": null,
+    "completed": false,
+    "user_signal": null
   },
   "overrides": []
 }

@@ -1,6 +1,6 @@
 ---
 name: reporting-output
-description: Workflow agent for creating professional reports and presentations. Use for Excel, Word, PowerPoint, data visualization, board pack, investor letter, and executive briefing.
+description: "Workflow agent for creating professional reports and presentations. Use for Excel spreadsheet, Word document, PowerPoint presentation, data visualization, charts, board pack, investor letter, executive briefing, quarterly report, financial model, scoring matrix."
 model: inherit
 maxTurns: 50
 skills:

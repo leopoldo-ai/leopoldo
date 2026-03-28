@@ -515,6 +515,76 @@ The Leopoldo section is delimited by HTML comments:
 <!-- leopoldo:end -->
 ```
 
+## Hook Management
+
+Hooks are system components that ship with every Leopoldo installation. Unlike skills, hooks are not customizable by users.
+
+### Hook Files
+
+| Script | Hook Event | Purpose |
+|--------|-----------|---------|
+| `core.sh` | (shared library) | Project root discovery, gate state, journal helpers |
+| `session-start.sh` | SessionStart | Initialize session, load Imprint, check evolution |
+| `correction-detector.sh` | UserPromptSubmit | Detect correction signals, set postmortem gate |
+| `gate-enforcer.sh` | Stop | Enforce pending gates, block if unresolved |
+| `pre-edit-validator.sh` | PreToolUse | Protect .state/ and .leopoldo/ from accidental writes |
+| `tool-logger.sh` | PostToolUse | Log tool usage, track checkpoint counter |
+
+### Install Flow (hooks)
+
+During `/leopoldo install`:
+
+1. Copy `.leopoldo/hooks/` directory (6 scripts) from plugin package
+2. Make all scripts executable: `chmod +x .leopoldo/hooks/*.sh`
+3. Merge hooks into `.claude/settings.json` (see merge logic below)
+4. Record hook versions in manifest under `"hooks"` key
+
+### Settings.json Merge
+
+Like CLAUDE.md, settings.json must be merged non-destructively:
+
+1. Read existing `.claude/settings.json` (create if missing)
+2. If no `"hooks"` key exists, add the full hooks block from template
+3. If `"hooks"` key exists with Leopoldo hooks, update them in place
+4. If `"hooks"` key exists with user hooks (non-Leopoldo), preserve them and append Leopoldo hooks to each event array
+5. Never touch `permissions`, `agent`, or other user settings outside `hooks`
+
+Detection: Leopoldo hooks are identified by command containing `.leopoldo/hooks/`.
+
+### Update Flow (hooks)
+
+During `/leopoldo update`:
+
+1. Create snapshot of current `.leopoldo/hooks/`
+2. Download updated hook scripts
+3. Overwrite all scripts (hooks are system-managed)
+4. Verify executability (`chmod +x`)
+5. Update hooks hash in manifest
+
+### Remove Flow (hooks)
+
+During `/leopoldo uninstall`:
+
+1. Remove Leopoldo hooks from `.claude/settings.json` (identified by `.leopoldo/hooks/` in command)
+2. If no hooks remain in an event, remove the event key
+3. If no events remain, remove the `"hooks"` key entirely
+4. Remove `.leopoldo/hooks/` directory
+5. Remove `.state/` directory
+6. Remove `.leopoldo/` directory (after confirming with user if Imprint profile exists)
+
+### Manifest Hooks Entry
+
+```json
+{
+  "hooks": {
+    "version": "1.0.0",
+    "hash": "<sha256 of all hook files concatenated>",
+    "scripts": ["core.sh", "session-start.sh", "correction-detector.sh", "gate-enforcer.sh", "pre-edit-validator.sh", "tool-logger.sh"],
+    "settings_merged": true
+  }
+}
+```
+
 ## Integrity Check (Session Start)
 
 Runs automatically, lightweight, every session start:
