@@ -28,7 +28,7 @@ if [[ -f "$GATES_FILE" ]] && _has_jq && jq empty "$GATES_FILE" 2>/dev/null; then
   UPDATED="$(jq \
     --arg sid "$SESSION_ID" \
     '.session_id = $sid
-     | .checkpoint_threshold = 20
+     | .checkpoint_threshold = 5
      | .gates["doc-gate"].soft_warnings = 0
      | .postmortem = {"required": false, "detected_at": null, "completed": false, "user_signal": null}
      | .overrides = []' \
@@ -41,7 +41,7 @@ else
   "version": "2.0.0",
   "session_id": "$SESSION_ID",
   "task_count_since_checkpoint": 0,
-  "checkpoint_threshold": 20,
+  "checkpoint_threshold": 5,
   "current_phase": null,
   "gates": {
     "checkpoint": {"status": "clear", "enforcement": "soft", "soft_warnings": 0},
@@ -107,6 +107,46 @@ if [[ "$IMPRINT_ENABLED" == "true" ]]; then
     fi
   fi
 
+fi
+
+# --- Environment Quick Check (conditional) ---
+# Only scan when cache is stale (>24h) or MCP config changed since last scan.
+# Sets ENV_SCAN_NEEDED flag for orchestrator to dispatch environment-agent.
+
+MANIFEST="$ROOT/.leopoldo-manifest.json"
+MCP_LOCAL="$ROOT/.mcp.json"
+MCP_HOME="$HOME/.claude/mcp.json"
+
+needs_env_scan=false
+
+if [ ! -f "$MANIFEST" ]; then
+  needs_env_scan=true
+else
+  # Check cache age (>24h = stale)
+  if _has_jq; then
+    last_scan=$(jq -r '.environment.last_scan // empty' "$MANIFEST" 2>/dev/null)
+    if [ -z "$last_scan" ]; then
+      needs_env_scan=true
+    else
+      manifest_mtime=$(stat -f %m "$MANIFEST" 2>/dev/null || stat -c %Y "$MANIFEST" 2>/dev/null || echo 0)
+      now=$(date +%s)
+      age=$(( now - manifest_mtime ))
+      if [ "$age" -gt 86400 ]; then
+        needs_env_scan=true
+      fi
+    fi
+  fi
+  # Check MCP config changes (mtime newer than manifest)
+  if [ -f "$MCP_LOCAL" ] && [ "$MCP_LOCAL" -nt "$MANIFEST" ]; then
+    needs_env_scan=true
+  fi
+  if [ -f "$MCP_HOME" ] && [ "$MCP_HOME" -nt "$MANIFEST" ]; then
+    needs_env_scan=true
+  fi
+fi
+
+if $needs_env_scan; then
+  CONTEXT="$CONTEXT ENV_SCAN_NEEDED: environment cache stale or missing. Dispatch environment-agent for quick MCP re-scan before handling user request."
 fi
 
 # Output JSON for Claude Code — use jq to properly escape the context string

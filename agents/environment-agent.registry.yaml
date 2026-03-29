@@ -1,5 +1,5 @@
 # Environment Registry — Unified catalog of detectable tools, servers, and extensions
-# Used by the environment-awareness engine skill for detection and capability mapping.
+# Used by the environment-agent for detection and capability mapping.
 #
 # Structure:
 #   cli_tools:    CLI commands detectable via shell (Layer 1)

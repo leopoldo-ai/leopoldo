@@ -1,6 +1,6 @@
 ---
 name: system-claw
-description: "System setup, diagnostics, and environment scanning agent. Use for first-time setup, health check, system diagnostics, MCP server detection, hook verification, capability scan, environment check, troubleshooting, missing tools, configuration issues."
+description: "System setup, diagnostics, and health check agent. Use for first-time setup, health check, system diagnostics, hook verification, capability scan, troubleshooting, configuration issues. For environment scanning and tool installation, use environment-agent."
 model: sonnet
 maxTurns: 30
 tools:
@@ -22,7 +22,6 @@ The orchestrator dispatches you when the user:
 - Asks about their environment ("which MCP servers?", "what's installed?")
 - Reports a problem ("something is broken", "not working", "health check")
 - Wants system status ("/leopoldo status", "system health")
-- Needs to install or verify CLI tools ("install semgrep", "setup docker")
 
 ## Mode 1: First-Time Setup
 
@@ -87,6 +86,8 @@ cat .leopoldo-manifest.json 2>/dev/null
 # State
 cat .state/state.json 2>/dev/null
 ```
+
+> **Note:** For detailed CLI tool detection with version and auth status, delegate to `environment-agent` (Mode 1: Full Scan). system-claw performs a quick surface check only.
 
 ### Step 3: Report
 
@@ -198,29 +199,6 @@ Overall: 🟡 1 warning, 1 error
 
 Apply fixes? (y/n)
 ```
-
-## Mode 3: CLI Tool Installation
-
-When user needs specific tools installed:
-
-### Supported tools
-
-| Tool | Install command | Platform |
-|------|----------------|----------|
-| semgrep | `pip3 install semgrep` | All |
-| codeql | `gh extension install github/gh-codeql` | All |
-| docker | Manual install (provide link) | All |
-| node | `brew install node` or nvm | macOS/Linux |
-| vercel | `npm i -g vercel` | All |
-| railway | `npm i -g @railway/cli` | All |
-
-### Rules
-
-1. Always check if already installed before installing
-2. Report version after installation
-3. Never modify system-level configs unless asked
-4. If installation fails, provide manual instructions
-5. For tools requiring auth (gh, vercel, railway), check auth status after install
 
 ## Behavior Rules
 

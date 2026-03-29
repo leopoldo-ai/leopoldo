@@ -76,18 +76,13 @@ fi
 # CHECKPOINT TRACKING (Edit/Write operations)
 # ──────────────────────────────────────────────
 if [[ "$TOOL_NAME" == "Edit" ]] || [[ "$TOOL_NAME" == "Write" ]]; then
-  # Increment persistent task counter in gates.json
-  if _has_jq && [[ -n "$GATE_STATE_RAW" ]]; then
-    NEW_COUNT=$((GATE_TASK_COUNT + 1))
-    update_gate_field ".task_count_since_checkpoint = $NEW_COUNT"
-    GATE_TASK_COUNT=$NEW_COUNT
-  fi
-
+  # Count Edit/Write from journal (append-only, no race condition with parallel subagents)
+  # The gates.json counter is unreliable with subagents — journal is source of truth
   TODAY="$(date +%Y-%m-%d)"
   JOURNAL_FILE="$ROOT/.state/journal/$TODAY.jsonl"
 
   if [[ -f "$JOURNAL_FILE" ]]; then
-    # Count Edit/Write events since last checkpoint.passed or checkpoint.completed
+    # Count Edit/Write events since last checkpoint.completed
     LAST_CP_LINE="$(grep -n '"checkpoint\.passed"\|"checkpoint\.completed"' "$JOURNAL_FILE" 2>/dev/null | tail -1 | cut -d: -f1 || echo "0")"
 
     if [[ "$LAST_CP_LINE" -gt 0 ]]; then
@@ -96,7 +91,12 @@ if [[ "$TOOL_NAME" == "Edit" ]] || [[ "$TOOL_NAME" == "Write" ]]; then
       EDIT_COUNT="$(grep -c '"tool":"Edit"\|"tool":"Write"' "$JOURNAL_FILE" 2>/dev/null || echo "0")"
     fi
 
-    # Threshold: 20 edits = checkpoint warning territory
+    # Update counter in gates.json for visibility (best-effort, may be stale with subagents)
+    if _has_jq && [[ -n "$GATE_STATE_RAW" ]]; then
+      update_gate_field ".task_count_since_checkpoint = $EDIT_COUNT"
+    fi
+
+    # Activate checkpoint gate when threshold reached
     THRESHOLD="$GATE_CHECKPOINT_THRESHOLD"
     if [[ "$EDIT_COUNT" -ge "$THRESHOLD" ]]; then
       if _has_jq && [[ -n "$GATE_STATE_RAW" ]]; then
